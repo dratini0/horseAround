@@ -67,6 +67,7 @@ struct Program{
 Program program;
 const Phase defaultEmptyPhase = {30, 0, 50};
 const Phase defaultFirstPhase = {30, 6, 50};
+Phase phaseBackup;
 
 int phase = 0;
 
@@ -245,6 +246,7 @@ void phaseIncrease(void){
   } else {
     phase++;
   }
+  phaseBackup = program.phases[phase];
 }
 
 void phaseDecrease(void){
@@ -254,10 +256,12 @@ void phaseDecrease(void){
     phase = 0;
     while(program.phases[phase].count > 0 && phase + 1 < maxPhaseCount) phase++;
   }
+  phaseBackup = program.phases[phase];
 }
 
 void selectFirstPhase(void){
   phase = 0;
+  phaseBackup = program.phases[phase];
 }
 
 void showRepeatsSetup(void){
@@ -456,6 +460,10 @@ void prevProgram(void){
   loadCurrentProgram();
 }
 
+void restorePhase(void){
+  program.phases[phase] = phaseBackup;
+}
+
 // right, up, down, left, select, run
 extern const PROGMEM State runState;
 extern const PROGMEM State setupState;
@@ -474,19 +482,19 @@ extern const PROGMEM State setupEraseState;
 extern const PROGMEM State asciiTableState;
 //                                                                                  RIGHT                                   UP                                                                  DOWN                                                                LEFT                                    SELECT                                        START
 const PROGMEM State runState =                      {showRun,                       {{NULL, &setupState},                   {nextProgram, &runState},                                           {prevProgram, &runState},                                           {NULL, &formatState},                   {NULL, NULL},                                 {runHorses, &runState}}};
-const PROGMEM State setupState =                    {showSetup,                     {{NULL, &restSetupState},               {nextProgram, &setupState},                                         {prevProgram, &setupState},                                         {NULL, &runState},                      {selectFirstPhase, &setupPhaseOverviewState}, {runHorses, &runState}}};
-const PROGMEM State restSetupState =                {showRestSetup,                 {{saveRestTime, &jogState},             {restIncrease, &restSetupState, true},                              {restDecrease, &restSetupState, true},                              {saveRestTime, &setupState},            {NULL, NULL},                                 {runHorses, &runState}}};
-const PROGMEM State jogState =                      {showJog,                       {{NULL, &formatState},                  {jogForward, &jogState},                                            {jogReverse, &jogState},                                            {NULL, &restSetupState},                {NULL, NULL},                                 {runHorses, &runState}}};
-const PROGMEM State formatState =                   {showFormat,                    {{NULL, &runState},                     {NULL, NULL},                                                       {NULL, NULL},                                                       {NULL, &jogState},                      {NULL, &formatConfirmState},                  {runHorses, &runState}}};
-const PROGMEM State formatConfirmState =            {showFormatConfirm,             {{NULL, &formatState},                  {format, &runState},                                                {NULL, &formatState},                                               {NULL, &formatState},                   {NULL, &formatState},                         {NULL, NULL}}};
-const PROGMEM State setupPhaseOverviewState =       {showPhaseOverview,             {{NULL, &setupPhaseLengthMinutesState}, {phaseIncrease, &setupPhaseOverviewState},                          {phaseDecrease, &setupPhaseOverviewState},                          {NULL, &setupEraseState},               {saveCurrentProgram, &setupState},            {NULL, NULL}}};
-const PROGMEM State setupPhaseLengthMinutesState =  {showPhaseLengthMinutesSetup,   {{NULL, &setupPhaseLengthSecondsState}, {phaseLengthIncreaseMinutes, &setupPhaseLengthMinutesState, true},  {phaseLengthDecreaseMinutes, &setupPhaseLengthMinutesState, true},  {phaseOk, &setupPhaseOverviewState},    {phaseOk, &setupPhaseOverviewState},          {NULL, NULL}}};
-const PROGMEM State setupPhaseLengthSecondsState =  {showPhaseLengthSecondsSetup,   {{NULL, &setupPhaseCountState},         {phaseLengthIncreaseSeconds, &setupPhaseLengthSecondsState, true},  {phaseLengthDecreaseSeconds, &setupPhaseLengthSecondsState, true},  {NULL, &setupPhaseLengthMinutesState},  {phaseOk, &setupPhaseOverviewState},          {NULL, NULL}}};
-const PROGMEM State setupPhaseCountState =          {showPhaseCountSetup,           {{NULL, &setupPhaseSpeedState},         {phaseCountIncrease, &setupPhaseCountState, true},                  {phaseCountDecrease, &setupPhaseCountState, true},                  {NULL, &setupPhaseLengthSecondsState},  {phaseOk, &setupPhaseOverviewState},          {NULL, NULL}}};
-const PROGMEM State setupPhaseSpeedState =          {showPhaseSpeedSetup,           {{phaseOk, &setupRepeatsState},         {phaseSpeedIncrease, &setupPhaseSpeedState, true},                  {phaseSpeedDecrease, &setupPhaseSpeedState, true},                  {NULL, &setupPhaseCountState},          {phaseOk, &setupPhaseOverviewState},          {NULL, NULL}}};
-const PROGMEM State setupRepeatsState =             {showRepeatsSetup,              {{NULL, &setupOkState},                 {repeatsIncrease, &setupRepeatsState, true},                        {repeatsDecrease, &setupRepeatsState, true},                        {NULL, &setupPhaseSpeedState},          {NULL, NULL},                                 {NULL, NULL}}};
-const PROGMEM State setupOkState =                  {showOk,                        {{NULL, &setupEraseState},              {NULL, NULL},                                                       {NULL, NULL},                                                       {NULL, &setupRepeatsState},             {saveCurrentProgram, &setupState},            {NULL, NULL}}};
-const PROGMEM State setupEraseState =               {showErase,                     {{NULL, &setupPhaseOverviewState},      {NULL, NULL},                                                       {NULL, NULL},                                                       {NULL, &setupOkState},                  {eraseProgram, &setupPhaseOverviewState},     {NULL, NULL}}};
+const PROGMEM State setupState =                    {showSetup,                     {{NULL, &restSetupState},               {nextProgram, &setupState},                                         {prevProgram, &setupState},                                         {NULL, &runState},                      {NULL, NULL},                                 {selectFirstPhase, &setupPhaseOverviewState}}};
+const PROGMEM State restSetupState =                {showRestSetup,                 {{saveRestTime, &jogState},             {restIncrease, &restSetupState, true},                              {restDecrease, &restSetupState, true},                              {saveRestTime, &setupState},            {NULL, NULL},                                 {NULL, NULL}}};
+const PROGMEM State jogState =                      {showJog,                       {{NULL, &formatState},                  {jogForward, &jogState},                                            {jogReverse, &jogState},                                            {NULL, &restSetupState},                {NULL, NULL},                                 {NULL, NULL}}};
+const PROGMEM State formatState =                   {showFormat,                    {{NULL, &runState},                     {NULL, NULL},                                                       {NULL, NULL},                                                       {NULL, &jogState},                      {NULL, NULL},                                 {NULL, &formatConfirmState}}};
+const PROGMEM State formatConfirmState =            {showFormatConfirm,             {{NULL, &formatState},                  {format, &runState},                                                {NULL, &formatState},                                               {NULL, &formatState},                   {NULL, &formatState},                         {NULL, &formatState}}};
+const PROGMEM State setupPhaseOverviewState =       {showPhaseOverview,             {{NULL, &setupPhaseLengthMinutesState}, {phaseIncrease, &setupPhaseOverviewState},                          {phaseDecrease, &setupPhaseOverviewState},                          {NULL, &setupEraseState},               {loadCurrentProgram, &setupState},            {saveCurrentProgram, &setupState}}};
+const PROGMEM State setupPhaseLengthMinutesState =  {showPhaseLengthMinutesSetup,   {{NULL, &setupPhaseLengthSecondsState}, {phaseLengthIncreaseMinutes, &setupPhaseLengthMinutesState, true},  {phaseLengthDecreaseMinutes, &setupPhaseLengthMinutesState, true},  {phaseOk, &setupPhaseOverviewState},    {restorePhase, &setupPhaseOverviewState},     {phaseOk, &setupPhaseOverviewState}}};
+const PROGMEM State setupPhaseLengthSecondsState =  {showPhaseLengthSecondsSetup,   {{NULL, &setupPhaseCountState},         {phaseLengthIncreaseSeconds, &setupPhaseLengthSecondsState, true},  {phaseLengthDecreaseSeconds, &setupPhaseLengthSecondsState, true},  {NULL, &setupPhaseLengthMinutesState},  {restorePhase, &setupPhaseOverviewState},     {phaseOk, &setupPhaseOverviewState}}};
+const PROGMEM State setupPhaseCountState =          {showPhaseCountSetup,           {{NULL, &setupPhaseSpeedState},         {phaseCountIncrease, &setupPhaseCountState, true},                  {phaseCountDecrease, &setupPhaseCountState, true},                  {NULL, &setupPhaseLengthSecondsState},  {restorePhase, &setupPhaseOverviewState},     {phaseOk, &setupPhaseOverviewState}}};
+const PROGMEM State setupPhaseSpeedState =          {showPhaseSpeedSetup,           {{phaseOk, &setupRepeatsState},         {phaseSpeedIncrease, &setupPhaseSpeedState, true},                  {phaseSpeedDecrease, &setupPhaseSpeedState, true},                  {NULL, &setupPhaseCountState},          {restorePhase, &setupPhaseOverviewState},     {phaseOk, &setupPhaseOverviewState}}};
+const PROGMEM State setupRepeatsState =             {showRepeatsSetup,              {{NULL, &setupOkState},                 {repeatsIncrease, &setupRepeatsState, true},                        {repeatsDecrease, &setupRepeatsState, true},                        {NULL, &setupPhaseSpeedState},          {loadCurrentProgram, &setupState},            {NULL, NULL}}};
+const PROGMEM State setupOkState =                  {showOk,                        {{NULL, &setupEraseState},              {NULL, NULL},                                                       {NULL, NULL},                                                       {NULL, &setupRepeatsState},             {loadCurrentProgram, &setupState},            {saveCurrentProgram, &setupState}}};
+const PROGMEM State setupEraseState =               {showErase,                     {{NULL, &setupPhaseOverviewState},      {NULL, NULL},                                                       {NULL, NULL},                                                       {NULL, &setupOkState},                  {loadCurrentProgram, &setupState},            {eraseProgram, &setupPhaseOverviewState}}};
 const PROGMEM State asciiTableState =               {showASCIITable,                {{NULL, NULL},                          {increaseASCII, &asciiTableState},                                  {decreaseASCII, &asciiTableState},                                  {NULL, NULL},                           {NULL, NULL},                                 {NULL, NULL}}};
 
 
