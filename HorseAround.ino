@@ -45,7 +45,7 @@ const int restTimeAddress = 0;
 
 struct State{
   void (*enterFunction)(void);
-  struct {
+  struct Action {
     void (*leaveFunction)(void);
     const State *nextState;
     const bool repeat;
@@ -99,19 +99,19 @@ int readButton(void) {
   return -1;
 }
 
-const int getProgramAddress(int programID){
+int getProgramAddress(int programID){
   return sizeof(restTime) + programID * sizeof(Program);
 }
 
-const void loadCurrentProgram(void){
+void loadCurrentProgram(void){
   EEPROM.get(getProgramAddress(currentProgram), program);
 }
 
-const void saveCurrentProgram(void){
+void saveCurrentProgram(void){
   EEPROM.put(getProgramAddress(currentProgram), program);
 }
 
-const void saveRestTime(void){
+void saveRestTime(void){
   EEPROM.put(restTimeAddress, restTime);
 }
 
@@ -521,6 +521,8 @@ void setup(void) {
   pinMode(speedPin, OUTPUT);
   pinMode(emergencyStopButton, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(emergencyStopButton), emergencyStop, RISING);
+  pinMode(backlightPin, OUTPUT);
+  digitalWrite(backlightPin, HIGH);
 
   void (*enterFunction)(void);
   enterFunction = (void (*)(void))pgm_read_ptr(&(state->enterFunction));
