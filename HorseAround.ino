@@ -17,6 +17,8 @@ const int backlightPin = 10; // active high, I think
 const int forwardPin = 13;
 const int backwardPin = 12;
 const int speedPin = 11; // (PWM)
+const int s3Pin = 20; // MiniCore extension
+const int s4Pin = 21; // MiniCore extension
 const int emergencyStopButton = 3;
 const int jogSpeed = 51;
 
@@ -474,7 +476,7 @@ const PROGMEM State setupState =                    {showSetup,                 
 const PROGMEM State restSetupState =                {showRestSetup,                 {{saveRestTime, &jogState},             {restIncrease, &restSetupState, true},                              {restDecrease, &restSetupState, true},                              {saveRestTime, &setupState},            {NULL, NULL},                                 {NULL, NULL}}};
 const PROGMEM State jogState =                      {showJog,                       {{NULL, &formatState},                  {jogForward, &jogState},                                            {jogReverse, &jogState},                                            {NULL, &restSetupState},                {NULL, NULL},                                 {NULL, NULL}}};
 const PROGMEM State formatState =                   {showFormat,                    {{NULL, &runState},                     {NULL, NULL},                                                       {NULL, NULL},                                                       {NULL, &jogState},                      {NULL, NULL},                                 {NULL, &formatConfirmState}}};
-const PROGMEM State formatConfirmState =            {showFormatConfirm,             {{NULL, &formatState},                  {format, &runState},                                                {NULL, &formatState},                                               {NULL, &formatState},                   {NULL, &formatState},                         {NULL, &formatState}}};
+const PROGMEM State formatConfirmState =            {showFormatConfirm,             {{NULL, &formatState},                  {format, &runState},                                                {NULL, &formatState},                                               {NULL, &formatState},                   {NULL, &formatState},                         {NULL, NULL}}};
 const PROGMEM State setupPhaseOverviewState =       {showPhaseOverview,             {{NULL, &setupPhaseLengthMinutesState}, {phaseIncrease, &setupPhaseOverviewState},                          {phaseDecrease, &setupPhaseOverviewState},                          {NULL, &setupEraseState},               {loadCurrentProgram, &setupState},            {saveCurrentProgram, &setupState}}};
 const PROGMEM State setupPhaseLengthMinutesState =  {showPhaseLengthMinutesSetup,   {{NULL, &setupPhaseLengthSecondsState}, {phaseLengthIncreaseMinutes, &setupPhaseLengthMinutesState, true},  {phaseLengthDecreaseMinutes, &setupPhaseLengthMinutesState, true},  {phaseOk, &setupPhaseOverviewState},    {restorePhase, &setupPhaseOverviewState},     {phaseOk, &setupPhaseOverviewState}}};
 const PROGMEM State setupPhaseLengthSecondsState =  {showPhaseLengthSecondsSetup,   {{NULL, &setupPhaseCountState},         {phaseLengthIncreaseSeconds, &setupPhaseLengthSecondsState, true},  {phaseLengthDecreaseSeconds, &setupPhaseLengthSecondsState, true},  {NULL, &setupPhaseLengthMinutesState},  {restorePhase, &setupPhaseOverviewState},     {phaseOk, &setupPhaseOverviewState}}};
@@ -512,6 +514,10 @@ void setup(void) {
   attachInterrupt(digitalPinToInterrupt(emergencyStopButton), emergencyStop, RISING);
   pinMode(backlightPin, OUTPUT);
   digitalWrite(backlightPin, HIGH);
+  pinMode(s3Pin, OUTPUT);
+  digitalWrite(s3Pin, LOW);
+  pinMode(s4Pin, OUTPUT);
+  digitalWrite(s4Pin, LOW);
 
   void (*enterFunction)(void);
   enterFunction = (void (*)(void))pgm_read_ptr(&(state->enterFunction));
