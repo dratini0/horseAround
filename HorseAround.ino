@@ -125,6 +125,7 @@ bool doPartUntil(const char *upperText, const char *lowerText, long nextMillis) 
       lcd.print(lcdBuf);
       lastSeconds = seconds;
     }
+    if(readButton() == 4) return true;
     if(!stopFlag) return true;
   }
   return false;
@@ -472,7 +473,7 @@ extern const PROGMEM State setupOkState;
 extern const PROGMEM State setupEraseState;
 extern const PROGMEM State asciiTableState;
 //                                                                                  RIGHT                                   UP                                                                  DOWN                                                                LEFT                                    SELECT                                        START
-const PROGMEM State runState =                      {showRun,                       {{NULL, &setupState},                   {nextProgram, &runState},                                           {prevProgram, &runState},                                           {NULL, &formatState},                   {runHorses, &runState},                       {runHorses, &runState}}};
+const PROGMEM State runState =                      {showRun,                       {{NULL, &setupState},                   {nextProgram, &runState},                                           {prevProgram, &runState},                                           {NULL, &formatState},                   {NULL, NULL},                                 {runHorses, &runState}}};
 const PROGMEM State setupState =                    {showSetup,                     {{NULL, &restSetupState},               {nextProgram, &setupState},                                         {prevProgram, &setupState},                                         {NULL, &runState},                      {selectFirstPhase, &setupPhaseOverviewState}, {runHorses, &runState}}};
 const PROGMEM State restSetupState =                {showRestSetup,                 {{saveRestTime, &jogState},             {restIncrease, &restSetupState, true},                              {restDecrease, &restSetupState, true},                              {saveRestTime, &setupState},            {NULL, NULL},                                 {runHorses, &runState}}};
 const PROGMEM State jogState =                      {showJog,                       {{NULL, &formatState},                  {jogForward, &jogState},                                            {jogReverse, &jogState},                                            {NULL, &restSetupState},                {NULL, NULL},                                 {runHorses, &runState}}};
