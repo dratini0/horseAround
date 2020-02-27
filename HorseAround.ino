@@ -20,21 +20,9 @@ const int speedPin = 11; // (PWM)
 const int emergencyStopButton = 3;
 const int jogSpeed = 51;
 
-// button readings
-// right: 0
-// up: 99
-// down:255
-// left: 408
-// select: 639
-// nothing: 1023
-
 // RIGHT UP DOWN LEFT SELECT START
-const int analogButtonCount = 5;
-const int buttonThresholds[analogButtonCount] = {50, 170, 320, 510, 750};
-// Big green button
-const int digitalButtonCount = 6;
-const int digitalButtons[digitalButtonCount] = {A1, A2, A3, A4, A5, 2};
-const int totalButtonCount = 6;
+const int buttonCount = 6;
+const int digitalButtons[buttonCount] = {A1, A2, A3, A4, A5, 2};
 const int debounceNeeded = 3;
 
 const int keyRepeatPhaseCount = 4;
@@ -48,7 +36,7 @@ struct State{
     void (*leaveFunction)(void);
     const State *nextState;
     const bool repeat;
-  } edges[totalButtonCount];
+  } edges[buttonCount];
 };
 
 const int maxPhaseCount = 10;
@@ -71,8 +59,8 @@ Phase phaseBackup;
 
 int phase = 0;
 
-int lastButton = totalButtonCount;
-int nextButton = totalButtonCount;
+int lastButton = buttonCount;
+int nextButton = buttonCount;
 int debounceCount = 0;
 char lcdBuf[64];
 int restTime = 10;
@@ -89,7 +77,7 @@ LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 // ü: \xf5
 
 int readButton(void) {
-  for(int i = 0; i < digitalButtonCount; i++){
+  for(int i = 0; i < buttonCount; i++){
     if(digitalRead(digitalButtons[i]) == LOW) return i;
   }
   return -1;
@@ -514,7 +502,7 @@ void setup(void) {
   // set up the LCD's number of columns and rows:
   lcd.begin(16, 2);
 
-  for(int i = 0; i < digitalButtonCount; i++){
+  for(int i = 0; i < buttonCount; i++){
     pinMode(digitalButtons[i], INPUT_PULLUP);
   }
   pinMode(forwardPin, OUTPUT);
