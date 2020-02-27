@@ -14,7 +14,6 @@ enum Selected {
 
 const int rs = 8, en = 9, d4 = 4, d5 = 5, d6 = 6, d7 = 7;
 const int backlightPin = 10; // active high, I think
-const int shittyButtonPin = A0; // WTF
 const int forwardPin = 13;
 const int backwardPin = 12;
 const int speedPin = 11; // (PWM)
@@ -89,10 +88,6 @@ LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 // ü: \xf5
 
 int readButton(void) {
-  int conversion = analogRead(shittyButtonPin);
-  for(int i = 0; i < analogButtonCount; i++) {
-    if(buttonThresholds[i] > conversion) return i;
-  }
   for(int i = 0; i < digitalButtonCount; i++){
     if(digitalRead(digitalButtons[i]) == LOW) return i;
   }
@@ -129,9 +124,6 @@ bool doPartUntil(const char *upperText, const char *lowerText, long nextMillis) 
       lcd.setCursor(0, 1);
       lcd.print(lcdBuf);
       lastSeconds = seconds;
-    }
-    if((millis() - firstMillis > 500) && analogRead(shittyButtonPin) <= buttonThresholds[analogButtonCount - 1]) {
-      return true;
     }
     if(!stopFlag) return true;
   }
@@ -555,10 +547,7 @@ void loop(void) {
   }
   if(debounceCount >= debounceNeeded && lastButton != nextButton) {
     lastButton = nextButton;
-    /*
-    lcd.clear();
-    lcd.print(nextButton);
-    */
+
     if(nextButton >= 0){
       keyRepeatEligible = (bool)pgm_read_byte(&(state->edges[nextButton].repeat));
       transitionState(nextButton);
@@ -574,6 +563,6 @@ void loop(void) {
       transitionState(nextButton);
     }
   }
-  
+
   delay(1);
 }
